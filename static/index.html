@@ -1,1 +1,332 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Video Synopsis System</title></head><body><h1>Video Synopsis System</h1><p>Local video review workspace.</p></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Video Synopsis System</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a href="/" class="brand"
+        ><span class="brand-icon">▶</span
+        ><span>Video Synopsis<small>REVIEW MORE. WATCH LESS.</small></span></a
+      >
+      <div class="nav-label">WORKSPACE</div>
+      <button class="nav active" data-view="dashboard">
+        ▦ &nbsp; Dashboard</button
+      ><button class="nav" data-view="synopsis">▷ &nbsp; Video synopsis</button
+      ><button class="nav" data-view="events">◷ &nbsp; Events</button
+      ><button class="nav" data-view="search">⌕ &nbsp; Search</button
+      ><button class="nav" data-view="reports">↓ &nbsp; Reports</button>
+      <div class="nav-label recordings-label">RECORDINGS</div>
+      <div id="recordings" class="recordings">
+        <p class="empty-text">Your analyzed clips will appear here.</p>
+      </div>
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span> Local workspace
+        <p>Fixed-camera analysis<br />No cloud upload required</p>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <h1>Video Synopsis<span class="blue">.</span></h1>
+          <p>Find the moments that matter.</p>
+        </div>
+        <div class="header-actions">
+          <button id="sampleBtn" class="secondary">▷ Try sample</button
+          ><button id="uploadBtn" class="primary">↑ Upload video</button>
+        </div>
+      </header>
+      <section class="toolbar">
+        <label class="search"
+          ><span>⌕</span
+          ><input
+            id="search"
+            placeholder="Search events, tags and notes..."
+            aria-label="Search events" /></label
+        ><select id="recordingSelect" aria-label="Select recording">
+          <option value="">Select a recording</option></select
+        ><span class="local-badge">● LOCAL ANALYSIS</span>
+      </section>
+      <div id="notice" role="status" class="notice">
+        Upload a fixed-camera recording or analyze our generated test scene.
+      </div>
+      <section class="stats">
+        <article>
+          <span class="stat-icon">◷</span>
+          <div>
+            <small>Source duration</small
+            ><strong id="sourceDuration">0:00</strong>
+          </div>
+        </article>
+        <article>
+          <span class="stat-icon">▷</span>
+          <div>
+            <small>Synopsis duration</small
+            ><strong id="synopsisDuration">0:00</strong>
+          </div>
+        </article>
+        <article>
+          <span class="stat-icon">↓</span>
+          <div>
+            <small>Duration reduction</small><strong id="reduction">N/A</strong>
+          </div>
+        </article>
+        <article>
+          <span class="stat-icon">◎</span>
+          <div>
+            <small>Activity tracks</small><strong id="eventCount">0</strong>
+          </div>
+        </article>
+      </section>
+      <div class="dashboard">
+        <div class="left-column">
+          <section class="panel video-panel" id="videoPanel">
+            <div class="panel-title">
+              <div>
+                <span class="status-dot"></span
+                ><b id="cameraTitle">Recording workspace</b>
+              </div>
+              <span id="sourceBadge" class="badge">NO VIDEO LOADED</span>
+            </div>
+            <div class="video-wrap">
+              <video id="video" controls playsinline preload="metadata"></video
+              ><canvas id="overlay" aria-label="Motion track overlays"></canvas>
+              <div id="emptyVideo">
+                <div class="empty-icon">▶</div>
+                <h2>
+                  Hours of footage.<br /><span class="blue"
+                    >A clearer picture.</span
+                  >
+                </h2>
+                <p>
+                  Extract activity, review key moments, and compare<br />source
+                  footage with a compact visual synopsis.
+                </p>
+                <button class="primary" id="emptySample">
+                  Explore generated sample →</button
+                ><small
+                  >MP4, MOV, AVI, MKV, WebM · Up to 200 MB / 5 minutes</small
+                >
+              </div>
+              <div id="modeBanner" hidden>
+                COMPOSITED VIEW · Objects may come from different source times
+              </div>
+            </div>
+            <div class="playback-toolbar">
+              <div class="mode-tabs" role="group" aria-label="Playback mode">
+                <button data-mode="original" class="active">Source</button
+                ><button data-mode="synopsis">Synopsis</button
+                ><button data-mode="reel">Activity reel</button>
+              </div>
+              <label
+                ><input id="boxes" type="checkbox" checked /> Track
+                overlays</label
+              >
+            </div>
+          </section>
+          <section class="panel" id="timelinePanel">
+            <div class="panel-title">
+              <div>
+                <h2>Activity timeline</h2>
+                <span class="badge">SOURCE TIME</span>
+              </div>
+              <span id="detectorLabel" class="muted"
+                >OpenCV motion analysis</span
+              >
+            </div>
+            <canvas
+              id="timeline"
+              width="1100"
+              height="95"
+              aria-label="Source activity timeline"
+            ></canvas>
+            <div class="timeline-legend">
+              <span><i class="dot"></i> Observed activity</span
+              ><span id="timelineHint"
+                >Click the timeline to inspect the source</span
+              >
+            </div>
+          </section>
+          <section class="panel" id="momentsPanel">
+            <div class="panel-title">
+              <div>
+                <h2>Key moments</h2>
+                <span id="filterCount" class="muted">0 events</span>
+              </div>
+              <button id="resetFilters" class="text-button">
+                Reset filters
+              </button>
+            </div>
+            <div id="moments" class="moment-list">
+              <p class="empty-text">
+                Activity thumbnails will be extracted from your clip.
+              </p>
+            </div>
+          </section>
+          <section class="panel" id="detailPanel">
+            <div class="panel-title">
+              <h2>Event details</h2>
+              <span id="detailBadge" class="badge">SELECT A TRACK</span>
+            </div>
+            <div id="detailEmpty" class="empty-text">
+              Choose a key moment or event to inspect its source timing and
+              observations.
+            </div>
+            <div id="detailContent" hidden>
+              <div class="details-grid">
+                <img id="detailImage" alt="Observed object crop" />
+                <div>
+                  <h3 id="detailTitle"></h3>
+                  <dl id="detailFacts"></dl>
+                  <button id="jumpSource" class="secondary">
+                    ▷ Review source moment
+                  </button>
+                </div>
+              </div>
+              <form id="noteForm">
+                <label
+                  >Review note<input
+                    id="eventNote"
+                    maxlength="250"
+                    placeholder="Add your own observation..." /></label
+                ><label
+                  >Tags<input
+                    id="eventTags"
+                    placeholder="Comma-separated tags, up to 8" /></label
+                ><button type="submit" class="primary">Save review</button>
+              </form>
+              <p class="detail-note">
+                Notes and tags are manual annotations. A track ID is not a
+                verified identity.
+              </p>
+            </div>
+          </section>
+          <div class="method-note">
+            <span>ⓘ</span>
+            <p>
+              Synopsis reorders time for faster review. Always open source
+              footage to verify chronology. Motion candidates are not identified
+              people or objects. Long activity means a track lasted at least 15
+              seconds, not inferred intent.
+            </p>
+          </div>
+        </div>
+        <div class="right-column">
+          <section class="panel events-panel">
+            <div class="panel-title">
+              <h2>Events & highlights</h2>
+              <span id="eventsBadge" class="badge">0 TRACKS</span>
+            </div>
+            <div id="events" class="event-list">
+              <p class="empty-text">No events yet. Upload a video to start.</p>
+            </div>
+          </section>
+          <section class="panel filter-panel">
+            <div class="panel-title">
+              <h2>Filter observations</h2>
+              <span>⌕</span>
+            </div>
+            <label
+              >Object category<select id="category">
+                <option value="all">All categories</option>
+                <option value="motion">Motion candidates</option>
+                <option value="person">Persons (model required)</option>
+                <option value="vehicle">Vehicles (model required)</option>
+                <option value="bag">Bags (model required)</option>
+                <option value="long">Long activity</option>
+              </select></label
+            >
+            <div class="range-inputs">
+              <label
+                >From (seconds)<input
+                  id="fromTime"
+                  type="number"
+                  value="0"
+                  min="0"
+                  step=".1" /></label
+              ><label
+                >To (seconds)<input
+                  id="toTime"
+                  type="number"
+                  min="0"
+                  step=".1"
+                  placeholder="End of recording"
+              /></label>
+            </div>
+            <p>
+              Filters apply to the selected recording. Search also matches your
+              review tags and notes.
+            </p>
+          </section>
+          <section class="panel export-panel" id="exportPanel">
+            <div class="panel-title">
+              <h2>Downloads & reports</h2>
+              <span>↓</span>
+            </div>
+            <p>Keep a reviewable record of every observation.</p>
+            <a id="synopsisDownload" aria-disabled="true"
+              >Composited synopsis MP4 ↗</a
+            ><a id="reelDownload" aria-disabled="true">Activity reel MP4 ↗</a
+            ><a id="csvDownload" aria-disabled="true">Event report CSV ↗</a
+            ><a id="jsonDownload" aria-disabled="true">Full analysis JSON ↗</a>
+          </section>
+          <section class="panel info-panel">
+            <div class="panel-title">
+              <h2>Processing details</h2>
+              <span class="badge">LOCAL</span>
+            </div>
+            <dl id="processingFacts">
+              <dt>Detector</dt>
+              <dd>Foreground motion</dd>
+              <dt>Camera</dt>
+              <dd>Stationary required</dd>
+              <dt>Semantic labels</dt>
+              <dd>Optional local model</dd>
+            </dl>
+          </section>
+        </div>
+      </div>
+      <footer>
+        <b>VIDEO SYNOPSIS SYSTEM</b><span>Made for careful review.</span
+        ><span>v1.0 · Local workspace</span>
+      </footer>
+    </main>
+    <dialog id="uploadDialog">
+      <form id="uploadForm">
+        <h2>Analyze a recording</h2>
+        <p>Fixed-camera video works best.</p>
+        <label
+          >Video file<input
+            id="uploadFile"
+            type="file"
+            required
+            accept="video/*" /></label
+        ><label
+          >Camera / recording name<input
+            id="cameraName"
+            required
+            maxlength="64"
+            value="Camera 01 - Entrance" /></label
+        ><label
+          >Optional recording start (UTC)<input
+            id="startedAt"
+            type="datetime-local" /></label
+        ><small
+          >Maximum 200 MB, five minutes. Video audio is removed from review
+          outputs.</small
+        >
+        <div class="dialog-actions">
+          <button type="button" id="cancelUpload" class="secondary">
+            Cancel</button
+          ><button type="submit" id="submitUpload" class="primary">
+            Start analysis
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

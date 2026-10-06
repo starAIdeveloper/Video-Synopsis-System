@@ -19,6 +19,14 @@ uvicorn app:app --host 127.0.0.1 --port 8000 --workers 1
 
 Open http://127.0.0.1:8000. Choose **Try sample** to generate and process an original entrance scene, or upload your own clip. The sample is explicitly labeled and runs through actual detection, tracking, scheduling, composition and encoding; events and compression statistics are not hard-coded.
 
+## Validation preview
+
+![Desktop dashboard](artifacts/synopsis-desktop.webp)
+
+[Mobile dashboard](artifacts/synopsis-mobile.webp) · [Browser check report](artifacts/browser-report.json)
+
+Local validation passed 12 backend tests and the browser checks below. The generated 24-second fixture produced a 6.6-second synopsis with three tracks and a 21-second chronological activity reel. These measurements describe the generated fixture only.
+
 ## Outputs
 
 | Playback mode | What it contains | Chronology |

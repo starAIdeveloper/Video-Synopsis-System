@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "viewports": [
+    "1536x1050",
+    "390x844"
+  ],
+  "checks": [
+    "generated sample",
+    "actual synopsis duration",
+    "three playback modes",
+    "event source seeking",
+    "safe review notes",
+    "tag search",
+    "category filter",
+    "MP4 download",
+    "CSV export",
+    "persistence after reload",
+    "mobile overflow",
+    "real upload",
+    "recording switching"
+  ],
+  "console_errors": []
+}

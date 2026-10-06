@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 *.pt
 artifacts/*.png
+artifacts/*.csv
+artifacts/*.mp4
+artifacts/*.log
